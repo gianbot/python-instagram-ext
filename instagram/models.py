@@ -50,6 +50,9 @@ class Media(ApiModel):
         for key, value in six.iteritems(kwargs):
             setattr(self, key, value)
 
+    def __unicode__(self):
+        return "Media: %s" % self.id
+
     def get_standard_resolution_url(self):
         if self.type == 'image':
             return self.images['standard_resolution'].url
@@ -62,13 +65,8 @@ class Media(ApiModel):
         else:
             return self.videos['low_resolution'].url
 
-
     def get_thumbnail_url(self):
         return self.images['thumbnail'].url
-
-
-    def __unicode__(self):
-        return "Media: %s" % self.id
 
     @classmethod
     def object_from_dictionary(cls, entry):
@@ -112,7 +110,7 @@ class Media(ApiModel):
         new_media.caption = None
         if entry['caption']:
             new_media.caption = Comment.object_from_dictionary(entry['caption'])
-        
+
         new_media.tags = []
         if entry['tags']:
             for tag in entry['tags']:
@@ -121,6 +119,8 @@ class Media(ApiModel):
         new_media.link = entry['link']
 
         new_media.filter = entry.get('filter')
+
+        new_media.raw = entry
 
         return new_media
 
