@@ -39,6 +39,11 @@ class Image(ApiModel):
 
 class Video(Image):
 
+    def __init__(self, *args, **kwargs):
+        # FIXME: this shows up in the api response, but is always '0'. what is this?
+        self.id = kwargs.pop('id', None)
+        super(Video, self).__init__(*args, **kwargs)
+
     def __unicode__(self):
         return "Video: %s" % self.url
 
@@ -54,13 +59,13 @@ class Media(ApiModel):
         return "Media: %s" % self.id
 
     def get_standard_resolution_url(self):
-        if self.type == 'image':
+        if self.type in ['image','carousel']:
             return self.images['standard_resolution'].url
         else:
             return self.videos['standard_resolution'].url
 
     def get_low_resolution_url(self):
-        if self.type == 'image':
+        if self.type in ['image', 'carousel']:
             return self.images['low_resolution'].url
         else:
             return self.videos['low_resolution'].url
@@ -192,13 +197,19 @@ class Location(ApiModel):
 
 class User(ApiModel):
 
-    def __init__(self, id, *args, **kwargs):
-        self.id = id
+    def __init__(self, username, *args, **kwargs):
+        self.username = username
         for key, value in six.iteritems(kwargs):
             setattr(self, key, value)
 
     def __unicode__(self):
         return "User: %s" % self.username
+
+    def __eq__(self, other):
+        return self.username == other.username
+
+    def __ne__(self, other):
+        return not self == other
 
 
 class Relationship(ApiModel):
